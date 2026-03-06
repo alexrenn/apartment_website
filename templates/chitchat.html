@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Chitchat - Our Apartment{% endblock %}
+
+{% block content %}
+
+<form action="/chitchat" method="POST">
+    <input type="text" name="message" placeholder="Type a message..." required>
+    <button type="submit">Send</button>
+</form>
+
+<hr>
+
+{% for msg in messages %}
+<div class="flex justify-between text-small">
+    <p>{{ msg.time }}</p>
+    <small class="items-center">{{ msg.msg }}</small>
+</div>
+{% endfor %}
+{% endblock %}

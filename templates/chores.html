@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Chores - Our Apartment{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-2xl font-bold text-purple-600 mb-1">Chore Rotation</h2>
+    <table class="w-full text-left">
+        <thead>
+            <tr class="border-b text-sm text-gray-500">
+                <th class="py-2 pr-4">Roommate</th>
+                <th class="py-2">Chore</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for roommate, chore in assignments %}
+            <tr class="border-b last:border-0">
+                <td class="py-3 pr-4 font-medium">{{ roommate }}</td>
+                <td class="py-3">{{ chore }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

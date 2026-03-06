@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Bills - Our Apartment{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow p-6 mb-6 flex items-center gap-4">
+    <span class="text-sm font-medium text-gray-700">Viewing as:</span>
+    <form action="/bills" method="GET" id="viewing-form">
+        <select name="me" onchange="this.form.submit()" class="border rounded-lg px-3 py-2">
+            <option value="">— Select —</option>
+            {% for r in roommates %}
+            <option value="{{ r }}" {{ 'selected' if me == r }}>{{ r }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+{% if me and my_splits %}
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <h2 class="text-2xl font-bold text-purple-600 mb-4">My Unsettled Bills</h2>
+    {% for split in my_splits %}
+    <div class="flex justify-between items-center border-b py-2">
+        <span>
+            <strong>${{ "%.2f" | format(split.amount) }}</strong> to {{ split.paid_by }}
+            — {{ split.description or 'no description' }}
+            <span class="text-xs text-gray-400">{{ split.created_at[:10] }}</span>
+        </span>
+        <form action="/bills/settle-one" method="POST">
+            <input type="hidden" name="split_id" value="{{ split.id }}">
+            <input type="hidden" name="me" value="{{ me }}">
+            <button class="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition">Paid ✓</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+{% elif me %}
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <h2 class="text-2xl font-bold text-purple-600 mb-4">My Unsettled Bills</h2>
+    <p class="text-gray-500">yay ur good</p>
+</div>
+{% endif %}
+
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <h2 class="text-2xl font-bold text-purple-600 mb-4">add an expense</h2>
+    <form action="/bills/add" method="POST" class="space-y-4">
+        <div class="flex flex-wrap gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Paid by</label>
+                <select name="paid_by" required class="border rounded-lg px-3 py-2">
+                    {% for r in roommates %}
+                    <option value="{{ r }}">{{ r }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+                <input type="number" name="amount" step="0.01" min="0.01" required
+                       class="border rounded-lg px-3 py-2 w-32">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <input type="text" name="description" placeholder="e.g. groceries"
+                       class="border rounded-lg px-3 py-2">
+            </div>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-700 mb-2">Split among:</p>
+            <div class="flex flex-wrap gap-3">
+                {% for r in roommates %}
+                <label class="flex items-center gap-1.5 text-sm">
+                    <input type="checkbox" name="split_among" value="{{ r }}" checked
+                           class="rounded text-purple-600">
+                    {{ r }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="submit"
+                class="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition">
+            okay pls pay thanks &hearts;
+        </button>
+    </form>
+</div>
+
+<div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-2xl font-bold text-purple-600 mb-4">Recent Bills</h2>
+    {% if bills %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="border-b text-sm text-gray-500">
+                    <th class="py-2 pr-4">Date</th>
+                    <th class="py-2 pr-4">Paid By</th>
+                    <th class="py-2 pr-4">Amount</th>
+                    <th class="py-2 pr-4">Description</th>
+                    <th class="py-2">Split Among</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in bills %}
+                <tr class="border-b last:border-0">
+                    <td class="py-2 pr-4 text-sm text-gray-600">{{ bill.created_at[:10] }}</td>
+                    <td class="py-2 pr-4 font-medium">{{ bill.paid_by }}</td>
+                    <td class="py-2 pr-4">${{ "%.2f" | format(bill.amount) }}</td>
+                    <td class="py-2 pr-4 text-gray-600">{{ bill.description or '—' }}</td>
+                    <td class="py-2 text-sm text-gray-600">{{ bill.split_among or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-500">No bills yet. Add one above!</p>
+    {% endif %}
+    {% if total_pages > 1 %}
+    <div class="flex justify-between items-center mt-4">
+        {% if page > 1 %}
+        <a href="/bills?page={{ page - 1 }}{% if me %}&me={{ me }}{% endif %}"
+           class="text-sm text-purple-600 hover:underline">&larr; Newer</a>
+        {% else %}
+        <span></span>
+        {% endif %}
+        <span class="text-sm text-gray-500">Page {{ page }} of {{ total_pages }}</span>
+        {% if page < total_pages %}
+        <a href="/bills?page={{ page + 1 }}{% if me %}&me={{ me }}{% endif %}"
+           class="text-sm text-purple-600 hover:underline">Older &rarr;</a>
+        {% else %}
+        <span></span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-xl shadow p-6 mt-6">
+    <h2 class="text-2xl font-bold text-purple-600 mb-4">Who Owes Who</h2>
+    <div class="overflow-x-auto">
+        <table class="w-full text-center text-sm">
+            <thead>
+                <tr class="border-b text-gray-500">
+                    <th class="py-2 px-3 text-left">Owes ↓ / To →</th>
+                    {% for r in roommates %}
+                    <th class="py-2 px-3">{{ r }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for debtor in roommates %}
+                <tr class="border-b last:border-0">
+                    <td class="py-2 px-3 text-left font-medium">{{ debtor }}</td>
+                    {% for creditor in roommates %}
+                    <td class="py-2 px-3">
+                        {% if debtor == creditor %}
+                            <span class="text-gray-300">X</span>
+                        {% elif balances[debtor][creditor] > 0 %}
+                            <span class="text-red-600 font-semibold">${{ "%.2f" | format(balances[debtor][creditor]) }}</span>
+                        {% else %}
+                            <span class="text-gray-300">—</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

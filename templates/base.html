@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cunty Dreamhouse{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-purple-600 text-white px-6 py-4 flex gap-6 items-center shadow">
+        <a href="/" class="text-xl font-bold mr-auto">🏠 Cunty Dreamhouse</a>
+        <a href="/bills" class="text-sm text-white hover:underline">bills</a>
+        <a href="/chores" class="text-sm text-white hover:underline">chores</a>
+        <a href="/chitchat" class="text-sm text-white hover:underline">chitchat</a>
+    </nav>
+    <main class="max-w-4xl mx-auto p-6">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
+
+

@@ -5,13 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Cunty Dreamhouse{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Pixelify+Sans:wght@400;700&family=Princess+Sofia&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Lexend', sans-serif; }
+        h1, h2, h3, h4, nav a.text-xl { font-family: 'Pixelify Sans', cursive; }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <nav class="bg-purple-600 text-white px-6 py-4 flex gap-6 items-center shadow">
         <a href="/" class="text-xl font-bold mr-auto">🏠 Cunty Dreamhouse</a>
+    <h4>
         <a href="/bills" class="text-sm text-white hover:underline">bills</a>
         <a href="/chores" class="text-sm text-white hover:underline">chores</a>
         <a href="/chitchat" class="text-sm text-white hover:underline">chitchat</a>
+    </h4>
     </nav>
     <main class="max-w-4xl mx-auto p-6">
         {% block content %}{% endblock %}
